@@ -1,0 +1,9 @@
+sector,gdelt_query,article_count,avg_tone,avg_positive_score,avg_negative_score,tone_std,pct_negative,pct_positive,timeline_points,volume_trend,tone_trend,recent_avg_tone,early_avg_tone
+Manufacturing,UK manufacturing sector production output,0,,,,,,,0,,,,
+Public_Sector_Education_Charities,UK public sector education budget funding,0,,,,,,,0,,,,
+Healthcare,UK healthcare NHS funding investment,0,,,,,,,0,,,,
+Technology_Legal_Professional,UK technology startup investment fintech,0,,,,,,,0,,,,
+Agriculture,UK agriculture farming food supply,0,,,,,,,0,,,,
+Real_Estate,UK real estate property market commercial,0,,,,,,,0,,,,
+Wholesale_Retail,UK retail wholesale consumer spending,0,,,,,,,0,,,,
+Fast_Growth_Emerging,UK startup scale-up growth emerging technology,0,,,,,,,0,,,,

@@ -17,8 +17,12 @@ env/
 # uv
 .uv/
 
-# Output data (large downloaded datasets and generated CSVs)
-output/
+# Raw downloaded bulk data (too large for GitHub)
+output/raw/
+
+# Large intermediate datasets (>100 MB, exceeds GitHub limit)
+output/companies_bcb_filtered.csv
+output/final_model_dataset.csv
 
 # IDE
 .vscode/
