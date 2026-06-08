@@ -23,6 +23,7 @@ output/raw/
 # Large intermediate datasets (>100 MB, exceeds GitHub limit)
 output/companies_bcb_filtered.csv
 output/final_model_dataset.csv
+cleaned_companies_house_dataset.csv
 
 # IDE
 .vscode/

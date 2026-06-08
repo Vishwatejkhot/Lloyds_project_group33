@@ -27,24 +27,34 @@ def load_if_exists(path: str, name: str) -> pd.DataFrame | None:
 
 
 def create_opportunity_labels(df: pd.DataFrame) -> pd.DataFrame:
+    avg_tone = df.get("avg_tone", pd.Series([np.nan] * len(df), index=df.index))
+    has_sentiment = avg_tone.notna()
+
+    # GDELT covers only a small sampled subset of companies (small private UK
+    # firms rarely appear in global news), so avg_tone is null for the vast
+    # majority of rows. Build labels from structured signals that are populated
+    # for the whole population, and use sentiment only as a bonus override
+    # where it happens to be available.
     df["label_growth_opportunity"] = (
-        (df.get("company_age_years", pd.Series([np.nan] * len(df))) < 10) &
-        (df.get("is_active", pd.Series([0] * len(df))) == 1) &
-        (df.get("is_dormant", pd.Series([1] * len(df))) == 0) &
-        (df.get("accounts_overdue_days", pd.Series([999] * len(df))) == 0) &
-        (df.get("avg_tone", pd.Series([np.nan] * len(df))).fillna(0) > 0)
+        (df.get("company_age_years", pd.Series([np.nan] * len(df), index=df.index)) < 10) &
+        (df.get("is_active", pd.Series([0] * len(df), index=df.index)) == 1) &
+        (df.get("is_dormant", pd.Series([1] * len(df), index=df.index)) == 0) &
+        (df.get("accounts_overdue_days", pd.Series([999] * len(df), index=df.index)) == 0)
     ).astype(int)
+    df.loc[has_sentiment & (avg_tone > 0), "label_growth_opportunity"] = 1
 
     df["label_risk_signal"] = (
-        (df.get("has_late_filing_history", pd.Series([0] * len(df))).fillna(0) == 1) |
-        (df.get("director_turnover_signal", pd.Series([0] * len(df))).fillna(0) == 1) |
-        (df.get("avg_tone", pd.Series([np.nan] * len(df))).fillna(0) < -3)
+        (df.get("accounts_ever_late", pd.Series([0] * len(df), index=df.index)).fillna(0) == 1) |
+        (df.get("conf_stmt_overdue_days", pd.Series([0] * len(df), index=df.index)).fillna(0) > 180) |
+        (df.get("has_late_filing_history", pd.Series([0] * len(df), index=df.index)).fillna(0) == 1) |
+        (df.get("director_turnover_signal", pd.Series([0] * len(df), index=df.index)).fillna(0) == 1)
     ).astype(int)
+    df.loc[has_sentiment & (avg_tone < -3), "label_risk_signal"] = 1
 
     df["label_lending_need_proxy"] = (
-        (df.get("has_active_mortgages", pd.Series([0] * len(df))).fillna(0) == 1) &
-        (df.get("is_active", pd.Series([0] * len(df))) == 1) &
-        (df.get("label_risk_signal", pd.Series([0] * len(df))) == 0)
+        (df.get("has_active_mortgages", pd.Series([0] * len(df), index=df.index)).fillna(0) == 1) &
+        (df.get("is_active", pd.Series([0] * len(df), index=df.index)) == 1) &
+        (df.get("label_risk_signal", pd.Series([0] * len(df), index=df.index)) == 0)
     ).astype(int)
 
     return df
