@@ -1,0 +1,97 @@
+============================================================
+FINAL MODEL DATASET SUMMARY
+============================================================
+Total companies: 3,145,434
+Total features:  110
+
+--- Sector Distribution ---
+  Technology_Legal_Professional: 1,140,185 (36.2%)
+  Wholesale_Retail: 743,394 (23.6%)
+  Real_Estate: 624,316 (19.8%)
+  Manufacturing: 236,576 (7.5%)
+  Healthcare: 202,904 (6.5%)
+  Public_Sector_Education_Charities: 151,364 (4.8%)
+  Agriculture: 46,695 (1.5%)
+
+--- Proxy Label Distribution ---
+  label_growth_opportunity: 0 positive (0.0%)
+  label_risk_signal: 0 positive (0.0%)
+  label_lending_need_proxy: 412,380 positive (13.1%)
+
+--- Data Sources Merged ---
+  [1] Companies House bulk data (structured financials, SIC, status)
+  [2] Companies House filings API (late filings, director changes)
+  [3] GDELT company-level sentiment (article tone, volume)
+  [4] GDELT sector trends (sector-wide sentiment trends)
+  [5] OpenCorporates (cross-border, subsidiaries)
+
+--- Feature Groups ---
+  COMPANY STRUCTURE: age, type, status, dormancy
+  FILING BEHAVIOUR:  overdue days, late rate, history
+  DIRECTORS:         turnover, appointments, resignations
+  MORTGAGES:         outstanding, total, satisfied
+  MEDIA SENTIMENT:   avg tone, % negative, % positive, trend
+  SECTOR CONTEXT:    sector-level sentiment & volume trends
+  INTERNATIONAL:     has parent, has subsidiaries, OC type
+
+--- Missing Data by Column ---
+  WARNING: RegAddress.CareOf — 99.6% missing
+  WARNING: RegAddress.POBox — 99.4% missing
+  WARNING: RegAddress.AddressLine2 — 40.5% missing
+  WARNING: RegAddress.County — 71.6% missing
+  WARNING: DissolutionDate — 100.0% missing
+  WARNING: Accounts.LastMadeUpDate — 24.7% missing
+  WARNING: Returns.LastMadeUpDate — 72.7% missing
+  WARNING: SICCode.SicText_2 — 74.1% missing
+  WARNING: SICCode.SicText_3 — 88.5% missing
+  WARNING: SICCode.SicText_4 — 94.7% missing
+  WARNING: PreviousName_1.CONDATE — 90.7% missing
+  WARNING: PreviousName_1.CompanyName — 90.7% missing
+  WARNING: PreviousName_2.CONDATE — 98.4% missing
+  WARNING: PreviousName_2.CompanyName — 98.4% missing
+  WARNING: PreviousName_3.CONDATE — 99.7% missing
+  WARNING: PreviousName_3.CompanyName — 99.7% missing
+  WARNING: PreviousName_4.CONDATE — 99.9% missing
+  WARNING: PreviousName_4.CompanyName — 99.9% missing
+  WARNING: PreviousName_5.CONDATE — 100.0% missing
+  WARNING: PreviousName_5.CompanyName — 100.0% missing
+  WARNING: PreviousName_6.CONDATE — 100.0% missing
+  WARNING: PreviousName_6.CompanyName — 100.0% missing
+  WARNING: PreviousName_7.CONDATE — 100.0% missing
+  WARNING: PreviousName_7.CompanyName — 100.0% missing
+  WARNING: PreviousName_8.CONDATE — 100.0% missing
+  WARNING: PreviousName_8.CompanyName — 100.0% missing
+  WARNING: PreviousName_9.CONDATE — 100.0% missing
+  WARNING: PreviousName_9.CompanyName — 100.0% missing
+  WARNING: PreviousName_10.CONDATE — 100.0% missing
+  WARNING: PreviousName_10.CompanyName — 100.0% missing
+  WARNING: accounts_last_made_up — 24.7% missing
+  WARNING: total_account_filings — 100.0% missing
+  WARNING: late_filings_count — 100.0% missing
+  WARNING: late_filing_rate — 100.0% missing
+  WARNING: has_late_filing_history — 100.0% missing
+  WARNING: total_directors — 100.0% missing
+  WARNING: director_appointments_1yr — 100.0% missing
+  WARNING: director_resignations_1yr — 100.0% missing
+  WARNING: director_appointments_2yr — 100.0% missing
+  WARNING: director_turnover_signal — 100.0% missing
+  WARNING: gdelt_query — 100.0% missing
+  WARNING: article_count — 100.0% missing
+  WARNING: avg_tone — 100.0% missing
+  WARNING: avg_positive_score — 100.0% missing
+  WARNING: avg_negative_score — 100.0% missing
+  WARNING: tone_std — 100.0% missing
+  WARNING: pct_negative — 100.0% missing
+  WARNING: pct_positive — 100.0% missing
+  WARNING: sector_avg_tone — 100.0% missing
+  WARNING: sector_volume_trend — 100.0% missing
+  WARNING: sector_tone_trend — 100.0% missing
+  WARNING: sector_pct_negative — 100.0% missing
+  WARNING: oc_found — 100.0% missing
+  WARNING: oc_registered_address_country — 100.0% missing
+  WARNING: oc_company_type — 100.0% missing
+  WARNING: oc_source_url — 100.0% missing
+  WARNING: oc_number_of_employees — 100.0% missing
+  WARNING: oc_has_parent — 100.0% missing
+  WARNING: oc_has_subsidiaries — 100.0% missing
+  WARNING: oc_industry — 100.0% missing
