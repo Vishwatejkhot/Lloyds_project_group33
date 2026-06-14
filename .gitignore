@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+.uv/
+
+# Raw downloaded bulk data (too large for GitHub)
+output/raw/
+
+# Large intermediate datasets (>100 MB, exceeds GitHub limit)
+output/companies_bcb_filtered.csv
+output/final_model_dataset.csv
+cleaned_companies_house_dataset.csv
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Env files
+.env
+.env.*
