@@ -25,3 +25,12 @@ st.markdown("""
 """)
 
 st.info("Dashboard setup completed. Data integration will be added once model outputs are available.")
+
+# Future dashboard sections:
+# 1. Overview section
+# 2. EDA visualisations
+# 3. Feature engineering summary
+# 4. Model performance metrics
+# 5. SHAP explainability
+# 6. Ranked prospect list
+# 7. Company details
