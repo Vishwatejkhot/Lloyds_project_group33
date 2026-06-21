@@ -1,5 +1,5 @@
 # Lloyds project
-## Dissertation Project 
+## Dissertation Project — No API Keys Required
 
 This toolkit collects data for all 8 Lloyds BCB target sectors using
 **free, no-auth** data sources only.
