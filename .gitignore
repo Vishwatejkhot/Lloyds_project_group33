@@ -41,3 +41,12 @@ Thumbs.db
 # Env files
 .env
 .env.*
+
+# Model training outputs
+output/baseline_results_summary.csv
+output/final_ranked_predictions.csv
+output/full_vs_sample_comparison.csv
+output/recommended_models.csv
+output/sector_model_performance.csv
+output/top_1000_predictions.csv
+output/sector_vs_global_comparison.csv
