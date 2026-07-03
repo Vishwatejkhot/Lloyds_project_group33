@@ -24,6 +24,7 @@ output/raw/
 output/companies_bcb_filtered.csv
 output/final_model_dataset.csv
 output/feature_engineered_dataset.csv
+output/predictions.csv
 cleaned_companies_house_dataset.csv
 
 # IDE

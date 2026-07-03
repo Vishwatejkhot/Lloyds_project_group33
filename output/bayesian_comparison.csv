@@ -1,0 +1,10 @@
+Label,Model_A,Model_B,P_A_better,P_B_better,Winner
+Growth,Logistic Regression,Random Forest,0.0,1.0,Random Forest
+Growth,Logistic Regression,XGBoost,0.0,1.0,XGBoost
+Growth,Random Forest,XGBoost,0.0249,0.9751,XGBoost
+Risk,Logistic Regression,Random Forest,0.0,1.0,Random Forest
+Risk,Logistic Regression,XGBoost,0.0,1.0,XGBoost
+Risk,Random Forest,XGBoost,0.0,1.0,XGBoost
+Lending,Logistic Regression,Random Forest,0.0,1.0,Random Forest
+Lending,Logistic Regression,XGBoost,0.0,1.0,XGBoost
+Lending,Random Forest,XGBoost,0.5008,0.4992,Random Forest
