@@ -33,6 +33,15 @@ def load_data():
     return df
 
 
+@st.cache_data(show_spinner=False)
+def get_feature_medians():
+    """Median of every numeric column — used as default values in the new-company form."""
+    if not os.path.exists(DATASET_PATH):
+        return {}
+    df = pd.read_csv(DATASET_PATH, low_memory=False, nrows=100_000)
+    return df.select_dtypes(include="number").median().to_dict()
+
+
 @st.cache_data(show_spinner="Scoring companies…")
 def score_sample(_df, _models):
     rows = []
@@ -64,10 +73,10 @@ def get_top_input_features(models, label, n=12):
         return features[:n]
 
 
-def predict_prob(models, label, user_vals):
-    """Run predict_proba only — lightweight, no SHAP."""
+def predict_prob(models, label, user_vals, medians: dict):
+    """Run predict_proba only — lightweight, no SHAP. Unseen features get dataset median."""
     model, scaler, features, mname = best_model(models, label)
-    row = {f: user_vals.get(f, 0.0) for f in features}
+    row = {f: user_vals.get(f, medians.get(f, 0.0)) for f in features}
     X = pd.DataFrame([row]).values
     X_scaled = scaler.transform(X)
     prob = float(model.predict_proba(X_scaled)[0, 1])
@@ -248,9 +257,11 @@ with tab_new:
                 all_top.append(f)
                 seen.add(f)
 
+    medians = get_feature_medians()
+
     # ── Input form ────────────────────────────────────────────────────────
     with st.form("new_company_form"):
-        st.markdown("**Company Features**")
+        st.markdown("**Company Features** — defaults pre-filled with dataset medians")
         user_vals = {}
         cols = st.columns(3)
         for i, feat in enumerate(all_top):
@@ -258,11 +269,13 @@ with tab_new:
             is_binary = any(kw in feat.lower() for kw in
                             ["has_", "is_", "flag", "overdue", "active", "dissolved",
                              "accounts_late", "liquidation", "dormant"])
+            default_val = float(medians.get(feat, 0.0))
             if is_binary:
-                user_vals[feat] = col.selectbox(feat, [0, 1], key=f"inp_{feat}")
+                default_idx = min(int(round(default_val)), 1)
+                user_vals[feat] = col.selectbox(feat, [0, 1], index=default_idx, key=f"inp_{feat}")
             else:
                 user_vals[feat] = col.number_input(
-                    feat, value=0.0, step=0.1, format="%.2f", key=f"inp_{feat}"
+                    feat, value=round(default_val, 3), step=0.1, format="%.3f", key=f"inp_{feat}"
                 )
         new_sector = st.text_input("Sector (for report, optional)", value="Unknown")
         submitted = st.form_submit_button("🔮 Predict", type="primary")
@@ -273,7 +286,7 @@ with tab_new:
             preds_out = {}
             try:
                 for lbl in ["growth", "risk", "lending"]:
-                    prob, mdl, scl, feats, mn, X_row = predict_prob(models, lbl, user_vals)
+                    prob, mdl, scl, feats, mn, X_row = predict_prob(models, lbl, user_vals, medians)
                     preds_out[lbl] = {"prob": prob, "model": mdl, "scaler": scl,
                                       "features": feats, "mname": mn, "X_orig": X_row}
                 st.session_state["new_preds"]    = preds_out
