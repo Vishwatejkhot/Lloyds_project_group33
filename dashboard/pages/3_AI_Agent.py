@@ -27,7 +27,7 @@ with st.sidebar:
     )
     st.markdown("---")
     st.markdown("**LLM Gateway routing:**")
-    st.markdown("- `chat / explain` → Groq Llama-3.1-70B → OpenAI fallback")
+    st.markdown("- `chat / explain` → Groq gpt-oss-120b → OpenAI fallback")
     st.markdown("- `report / analysis` → GPT-4o-mini → Groq fallback")
     st.markdown("---")
     st.markdown("**Available tools:**")

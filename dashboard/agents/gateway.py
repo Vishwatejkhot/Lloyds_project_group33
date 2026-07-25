@@ -13,11 +13,13 @@ from litellm import completion
 
 litellm.suppress_debug_info = True
 
+_GROQ_MODEL = "groq/openai/gpt-oss-120b"
+
 _ROUTES = {
-    "explain":  ["groq/llama-3.1-70b-versatile", "gpt-4o-mini"],
-    "report":   ["gpt-4o-mini", "groq/llama-3.1-70b-versatile"],
-    "chat":     ["groq/llama-3.1-70b-versatile", "gpt-4o-mini"],
-    "analysis": ["gpt-4o-mini", "groq/llama-3.1-70b-versatile"],
+    "explain":  [_GROQ_MODEL, "gpt-4o-mini"],
+    "report":   ["gpt-4o-mini", _GROQ_MODEL],
+    "chat":     [_GROQ_MODEL, "gpt-4o-mini"],
+    "analysis": ["gpt-4o-mini", _GROQ_MODEL],
 }
 
 
@@ -70,5 +72,5 @@ def call_llm(
 def model_label(model_str: str) -> str:
     """Human-readable label for display in UI."""
     if "groq" in model_str:
-        return f"Groq · {model_str.split('/')[-1]}"
+        return f"Groq · {model_str.replace('groq/', '')}"
     return f"OpenAI · {model_str}"
