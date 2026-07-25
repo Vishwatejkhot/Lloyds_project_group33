@@ -1,20 +1,43 @@
 """
-Simple PDF report generator — plain text only, no complex layout.
+PDF report generator for Lloyds SME Intelligence Platform.
 """
 from __future__ import annotations
+import textwrap
 from datetime import datetime
 from fpdf import FPDF
 
+L = 15          # left/right margin mm
+W = 180         # usable content width mm
+LINE_H = 6      # standard line height mm
+
 
 def _clean(text: str) -> str:
-    """Strip markdown and replace anything outside Latin-1."""
-    text = (text.replace("**", "").replace("##", "").replace("#", "")
-                .replace("---", "").replace("–", "-").replace("—", "-")
-                .replace("‘", "'").replace("’", "'")
-                .replace("“", '"').replace("”", '"')
-                .replace("•", "*").replace("…", "...")
-                .replace(" ", " "))
+    """Remove markdown and replace non-Latin-1 characters."""
+    chars = {"–":"-","—":"-","'":"'","'":"'",""":'"',""":'"',
+             "•":"*","…":"...", " ":" "}
+    for ch, r in chars.items():
+        text = text.replace(ch, r)
+    # Strip all markdown symbols
+    for sym in ["***","**","__","##","# ","* ","- -","---","```"]:
+        text = text.replace(sym, "")
+    text = text.replace("*", "").replace("`", "").replace("|", " ")
+    # Strip tabs — these cause two-column artefacts in fpdf2
+    text = text.replace("\t", "    ")
     return text.encode("latin-1", errors="replace").decode("latin-1")
+
+
+def _write(pdf: FPDF, text: str, bold: bool = False, size: int = 10):
+    """Write pre-wrapped body text, always starting at left margin."""
+    pdf.set_font("Helvetica", "B" if bold else "", size)
+    for para in _clean(text).split("\n"):
+        para = para.strip()
+        if not para:
+            pdf.ln(3)
+            continue
+        for line in textwrap.wrap(para, width=90):
+            pdf.set_x(L)
+            pdf.cell(W, LINE_H, line, ln=True)
+    pdf.ln(2)
 
 
 def build_pdf(
@@ -27,80 +50,94 @@ def build_pdf(
     company_name: str = "SME",
 ) -> bytes:
     pdf = FPDF()
-    pdf.add_page()
+    pdf.set_margins(L, 20, L)
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_margins(15, 15, 15)
-    W = 180  # effective content width
+    pdf.add_page()
 
-    # Title
-    pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(W, 10, "Lloyds SME Intelligence Report", ln=True, align="C")
-    pdf.set_font("Helvetica", "", 10)
-    pdf.cell(W, 7, f"Group 33  |  {datetime.now().strftime('%d %B %Y  %H:%M')}", ln=True, align="C")
-    pdf.ln(5)
+    def divider():
+        pdf.set_draw_color(0, 106, 77)
+        pdf.set_line_width(0.5)
+        pdf.line(L, pdf.get_y(), L + W, pdf.get_y())
+        pdf.ln(4)
 
-    # Divider
-    pdf.set_draw_color(0, 106, 77)
-    pdf.set_line_width(0.8)
-    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
-    pdf.ln(5)
-
-    # Overview
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(W, 8, "Company Overview", ln=True)
-    pdf.set_font("Helvetica", "", 10)
-    pdf.cell(W, 6, f"Sector: {_clean(sector)}", ln=True)
-    pdf.cell(W, 6, f"Company: {_clean(company_name)}", ln=True)
-    pdf.ln(4)
-
-    # Scores
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(W, 8, "Prediction Scores", ln=True)
-    pdf.set_font("Helvetica", "", 10)
-    for label, prob in [("Growth Opportunity", growth), ("Risk Signal", risk), ("Lending Need", lending)]:
-        if prob >= 0.7:   status = "HIGH"
-        elif prob >= 0.4: status = "MEDIUM"
-        else:             status = "LOW"
-        pdf.cell(W, 6, f"  {label}: {prob:.1%}  ({status})", ln=True)
-    pdf.ln(4)
-
-    # SHAP features
-    if top_features:
+    def heading(txt: str):
+        pdf.ln(3)
         pdf.set_font("Helvetica", "B", 11)
-        pdf.cell(W, 8, "Key Feature Drivers (SHAP)", ln=True)
+        pdf.set_x(L)
+        pdf.cell(W, 8, txt, ln=True)
+
+    # ── Title ──────────────────────────────────────────────────────────────
+    pdf.set_font("Helvetica", "B", 17)
+    pdf.set_text_color(0, 106, 77)
+    pdf.set_x(L)
+    pdf.cell(W, 12, "Lloyds SME Intelligence Report", ln=True, align="C")
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(100, 100, 100)
+    pdf.set_x(L)
+    pdf.cell(W, 6, f"Group 33  |  {datetime.now().strftime('%d %B %Y  %H:%M')}", ln=True, align="C")
+    pdf.set_text_color(30, 30, 30)
+    pdf.ln(3)
+    divider()
+
+    # ── Overview ───────────────────────────────────────────────────────────
+    heading("Company Overview")
+    pdf.set_font("Helvetica", "", 10)
+    for label, val in [("Company", company_name), ("Sector", sector),
+                        ("Analysed by", "XGBoost ML (100k sample training)")]:
+        pdf.set_x(L)
+        pdf.cell(W, LINE_H, f"  {label}: {_clean(val)}", ln=True)
+    pdf.ln(3)
+
+    # ── Scores ─────────────────────────────────────────────────────────────
+    heading("Prediction Scores")
+    pdf.set_font("Helvetica", "", 10)
+    for label, prob in [("Growth Opportunity", growth),
+                        ("Risk Signal",        risk),
+                        ("Lending Need",       lending)]:
+        status = "HIGH" if prob >= 0.7 else ("MEDIUM" if prob >= 0.4 else "LOW")
+        pdf.set_x(L)
+        pdf.cell(W, LINE_H, f"  {label}: {prob:.1%}   ({status})", ln=True)
+    pdf.ln(3)
+
+    # ── SHAP ───────────────────────────────────────────────────────────────
+    if top_features and any(top_features.values()):
+        heading("Key Feature Drivers (SHAP)")
+        pdf.set_font("Helvetica", "I", 9)
+        pdf.set_text_color(100, 100, 100)
+        pdf.set_x(L)
+        pdf.cell(W, LINE_H,
+                 "  Positive values push prediction higher; negative push it lower.", ln=True)
+        pdf.set_text_color(30, 30, 30)
+        pdf.ln(2)
         for lbl in ["growth", "risk", "lending"]:
             feats = top_features.get(lbl, [])
             if not feats:
                 continue
             pdf.set_font("Helvetica", "B", 10)
-            pdf.cell(W, 6, f"  {lbl.capitalize()}:", ln=True)
+            pdf.set_x(L)
+            pdf.cell(W, LINE_H, f"  {lbl.capitalize()}:", ln=True)
             pdf.set_font("Helvetica", "", 10)
             for i, (fname, fval) in enumerate(feats[:5]):
                 sign = "+" if fval >= 0 else ""
-                pdf.cell(W, 6, f"    {i+1}. {_clean(fname)}: {sign}{fval:.4f}", ln=True)
-        pdf.ln(4)
+                pdf.set_x(L)
+                pdf.cell(W, LINE_H,
+                         f"    {i+1}. {_clean(fname)}: {sign}{fval:.4f}", ln=True)
+        pdf.ln(3)
 
-    # AI report
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(W, 8, "AI Analysis", ln=True)
-    pdf.set_font("Helvetica", "", 10)
-    for line in _clean(report_text).split("\n"):
-        line = line.strip()
-        if not line:
-            pdf.ln(3)
-        else:
-            pdf.multi_cell(W, 6, line)
-    pdf.ln(4)
+    # ── AI report ──────────────────────────────────────────────────────────
+    divider()
+    heading("AI Analysis")
+    _write(pdf, report_text, size=10)
 
-    # Disclaimer
-    pdf.set_draw_color(0, 106, 77)
-    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
-    pdf.ln(3)
+    # ── Disclaimer ─────────────────────────────────────────────────────────
+    divider()
     pdf.set_font("Helvetica", "I", 8)
-    pdf.multi_cell(W, 5,
-        "This report is generated by ML models and a generative AI system. "
-        "For internal use only. Data from UK Companies House public bulk download. "
-        "Lloyds Banking Group - Group 33 Dissertation Project.")
+    pdf.set_text_color(100, 100, 100)
+    _write(pdf,
+           "This report is generated by ML models and a generative AI system. "
+           "For internal use only. Data from UK Companies House public bulk download. "
+           "Lloyds Banking Group - Group 33 Dissertation Project.",
+           size=8)
 
     return bytes(pdf.output())
 
@@ -117,19 +154,13 @@ def pdf_download_button(
 ):
     import streamlit as st
     try:
-        pdf_bytes = build_pdf(
-            sector=sector, growth=growth, risk=risk, lending=lending,
-            report_text=report_text, top_features=top_features,
-            company_name=company_name,
-        )
-        fname = (f"lloyds_sme_{sector.replace(' ', '_').lower()}"
+        data = build_pdf(sector=sector, growth=growth, risk=risk, lending=lending,
+                         report_text=report_text, top_features=top_features,
+                         company_name=company_name)
+        fname = (f"lloyds_sme_{_clean(sector).replace(' ','_').lower()}"
                  f"_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf")
-        st.download_button(
-            label="📥 Download Report as PDF",
-            data=pdf_bytes,
-            file_name=fname,
-            mime="application/pdf",
-            key=key,
-        )
+        st.download_button("📥 Download Report as PDF",
+                           data=data, file_name=fname,
+                           mime="application/pdf", key=key)
     except Exception as e:
         st.error(f"PDF error: {e}")
