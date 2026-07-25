@@ -276,7 +276,6 @@ with tab_new:
 
     # ── Input form ────────────────────────────────────────────────────────
     with st.form("new_company_form"):
-        st.markdown("**Company Features** — defaults pre-filled with dataset medians")
         user_vals = {}
         cols = st.columns(3)
         for i, feat in enumerate(all_top):

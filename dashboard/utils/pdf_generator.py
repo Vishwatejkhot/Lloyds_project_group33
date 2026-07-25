@@ -3,11 +3,28 @@ PDF report generator for Lloyds SME Intelligence Platform.
 Uses fpdf2 — pure Python, no system dependencies.
 """
 from __future__ import annotations
-import io
 import textwrap
 from datetime import datetime
 
 from fpdf import FPDF
+
+
+def _sanitize(text: str) -> str:
+    """Strip markdown and replace characters outside Latin-1 so Helvetica won't error."""
+    replacements = {
+        "–": "-", "—": "-",   # en-dash, em-dash
+        "‘": "'", "’": "'",   # left/right single quotes
+        "“": '"', "”": '"',   # left/right double quotes
+        "•": "*", "…": "...", # bullet, ellipsis
+        " ": " ",                  # non-breaking space
+    }
+    for ch, repl in replacements.items():
+        text = text.replace(ch, repl)
+    # Strip markdown
+    text = (text.replace("**", "").replace("##", "")
+                .replace("#", "").replace("---", ""))
+    # Drop anything still outside Latin-1
+    return text.encode("latin-1", errors="replace").decode("latin-1")
 
 LLOYDS_GREEN  = (0, 106, 77)
 LLOYDS_LIGHT  = (230, 245, 238)
@@ -81,12 +98,8 @@ class _SMEReport(FPDF):
     def body_text(self, text: str):
         self.set_font("Helvetica", "", 9)
         self.set_text_color(*TEXT_DARK)
-        # Strip markdown bold/headers for clean PDF text
-        clean = (text
-                 .replace("**", "")
-                 .replace("##", "")
-                 .replace("#", "")
-                 .replace("---", ""))
+        # Strip markdown and replace characters outside Latin-1 range
+        clean = _sanitize(text)
         for line in clean.split("\n"):
             line = line.strip()
             if not line:
