@@ -1,0 +1,10 @@
+Label,Model,Average_Precision
+Growth Opportunity,Logistic Regression,0.9524
+Growth Opportunity,Random Forest,0.9675
+Growth Opportunity,XGBoost,0.9779
+Risk Signal,Logistic Regression,0.9981
+Risk Signal,Random Forest,0.9995
+Risk Signal,XGBoost,1.0
+Lending Need Proxy,Logistic Regression,0.9992
+Lending Need Proxy,Random Forest,1.0
+Lending Need Proxy,XGBoost,1.0

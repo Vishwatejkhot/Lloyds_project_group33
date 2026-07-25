@@ -23,6 +23,8 @@ output/raw/
 # Large intermediate datasets (>100 MB, exceeds GitHub limit)
 output/companies_bcb_filtered.csv
 output/final_model_dataset.csv
+output/feature_engineered_dataset.csv
+output/predictions.csv
 cleaned_companies_house_dataset.csv
 
 # IDE
@@ -40,3 +42,12 @@ Thumbs.db
 # Env files
 .env
 .env.*
+
+# Model training outputs
+output/baseline_results_summary.csv
+output/final_ranked_predictions.csv
+output/full_vs_sample_comparison.csv
+output/recommended_models.csv
+output/sector_model_performance.csv
+output/top_1000_predictions.csv
+output/sector_vs_global_comparison.csv

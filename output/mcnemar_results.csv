@@ -1,0 +1,10 @@
+Label,Model_A,Model_B,chi2,p_value,Significant
+Growth,Logistic Regression,Random Forest,203.5862,0.0,***
+Growth,Logistic Regression,XGBoost,252.6768,0.0,***
+Growth,Random Forest,XGBoost,31.83,0.0,***
+Risk,Logistic Regression,Random Forest,30.6947,0.0,***
+Risk,Logistic Regression,XGBoost,79.5269,0.0,***
+Risk,Random Forest,XGBoost,28.2647,0.0,***
+Lending,Logistic Regression,Random Forest,13.0667,0.0003,***
+Lending,Logistic Regression,XGBoost,13.0667,0.0003,***
+Lending,Random Forest,XGBoost,0.0,1.0,ns

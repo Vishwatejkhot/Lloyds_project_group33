@@ -1,0 +1,5 @@
+{
+  "python.defaultInterpreterPath": ".venv/Scripts/python.exe",
+  "python.analysis.extraPaths": ["dashboard"],
+  "python.analysis.typeCheckingMode": "basic"
+}
