@@ -24,7 +24,7 @@ def load_csv(name):
 def show_img(name, caption=""):
     path = os.path.join(OUTPUT_DIR, name)
     if os.path.exists(path):
-        st.image(Image.open(path), caption=caption, use_container_width=True)
+        st.image(Image.open(path), caption=caption, width="stretch")
     else:
         st.info(f"{name} not found.")
 
@@ -49,13 +49,13 @@ with tab1:
                                   cmap="RdYlGn")
             .format({c: "{:.4f}" for c in col_order if c not in ["Label","Model"]})
         )
-        st.dataframe(styled, use_container_width=True)
+        st.dataframe(styled, width="stretch")
 
         st.markdown("---")
         st.subheader("Recommended Models")
         rec = load_csv("recommended_models.csv")
         if rec is not None:
-            st.dataframe(rec, use_container_width=True)
+            st.dataframe(rec, width="stretch")
 
     st.markdown("---")
     show_img("baseline_performance_chart.png", "F1, Precision, Recall, Accuracy — all models")
@@ -78,7 +78,7 @@ with tab2:
         st.dataframe(
             pr.style.background_gradient(subset=["Average_Precision"], cmap="RdYlGn")
               .format({"Average_Precision": "{:.4f}"}),
-            use_container_width=True
+            width="stretch"
         )
 
 # ── Tab 3: Confusion matrices ──────────────────────────────────────────────
@@ -93,7 +93,7 @@ with tab4:
         st.dataframe(
             boot.style.format({c: "{:.4f}" for c in boot.columns
                                 if c not in ["Label","Model","Training"]}),
-            use_container_width=True
+            width="stretch"
         )
 
     st.markdown("---")
@@ -105,9 +105,9 @@ with tab4:
             if val in ["***","**"]: return "color: green; font-weight:bold"
             if val == "*": return "color: orange"
             return "color: grey"
-        styled_mc = mc.style.applymap(sig_color, subset=["Significant"]) \
+        styled_mc = mc.style.map(sig_color, subset=["Significant"]) \
                             .format({"chi2": "{:.2f}", "p_value": "{:.4f}"})
-        st.dataframe(styled_mc, use_container_width=True)
+        st.dataframe(styled_mc, width="stretch")
 
     st.markdown("---")
     st.subheader("Bayesian Model Comparison")
@@ -116,7 +116,7 @@ with tab4:
     if bay is not None:
         st.dataframe(
             bay.style.format({"P_A_better": "{:.3f}", "P_B_better": "{:.3f}"}),
-            use_container_width=True
+            width="stretch"
         )
 
 # ── Tab 5: SHAP ───────────────────────────────────────────────────────────
@@ -153,4 +153,4 @@ with tab5:
     show_img("shap_cross_label_comparison.png")
     cross = load_csv("shap_cross_label_importance.csv")
     if cross is not None:
-        st.dataframe(cross, use_container_width=True)
+        st.dataframe(cross, width="stretch")
