@@ -55,7 +55,6 @@ def prob_color(p):
 
 
 def get_top_input_features(models, label, n=12):
-    """Return top N feature names by model importance for the input form."""
     model, _, features, _ = best_model(models, label)
     try:
         importances = model.feature_importances_
@@ -65,23 +64,37 @@ def get_top_input_features(models, label, n=12):
         return features[:n]
 
 
-def build_input_row(models, label, user_vals):
-    """Build a single-row DataFrame matching the model's feature list, filling unknowns with 0."""
-    _, _, features, _ = best_model(models, label)
-    row = {f: user_vals.get(f, 0.0) for f in features}
-    return pd.DataFrame([row])
-
-
-def show_prediction_block(models, label, user_vals, sector):
-    """Score + SHAP + AI explain for one label from user input."""
+def predict_prob(models, label, user_vals):
+    """Run predict_proba only — lightweight, no SHAP."""
     model, scaler, features, mname = best_model(models, label)
-    X_df    = build_input_row(models, label, user_vals)
-    X_orig  = X_df.values
-    X_scaled = scaler.transform(X_orig)
-    prob    = float(model.predict_proba(X_scaled)[0, 1])
-    sv, ev  = compute_shap(model, X_scaled)
-    top     = top_features(sv, features)
-    return prob, sv, ev, features, top, mname, X_orig[0]
+    row = {f: user_vals.get(f, 0.0) for f in features}
+    X = pd.DataFrame([row]).values
+    X_scaled = scaler.transform(X)
+    prob = float(model.predict_proba(X_scaled)[0, 1])
+    return prob, model, scaler, features, mname, X[0]
+
+
+def render_shap_block(model, scaler, features, mname, X_orig):
+    """Compute and render SHAP waterfall + top features. Called lazily."""
+    X_scaled = scaler.transform(X_orig.reshape(1, -1))
+    try:
+        sv, ev = compute_shap(model, X_scaled)
+        top = top_features(sv, features)
+        col_w, col_t = st.columns([3, 1])
+        with col_w:
+            fig = waterfall_figure(sv, ev, features, X_orig)
+            st.pyplot(fig, width="stretch")
+            plt.close("all")
+        with col_t:
+            st.markdown(f"**Model:** {mname}")
+            st.markdown("**Top drivers:**")
+            for fname, fval in top[:6]:
+                arrow = "↑" if fval > 0 else "↓"
+                st.markdown(f"- {arrow} `{fname}` ({fval:+.3f})")
+        return top
+    except Exception as e:
+        st.error(f"SHAP error: {e}")
+        return []
 
 
 # ── Load models once ───────────────────────────────────────────────────────
@@ -106,7 +119,6 @@ with tab_browse:
         st.warning("feature_engineered_dataset.csv not found locally. Ask Vishwatej for the file.")
         st.stop()
 
-    # ── Sidebar filters ────────────────────────────────────────────────────
     col_f1, col_f2, col_f3 = st.columns(3)
     with col_f1:
         sectors = ["All"] + sorted(df["bcb_sector"].dropna().unique().tolist())
@@ -116,7 +128,6 @@ with tab_browse:
     with col_f3:
         n_show = st.slider("Companies to show", 10, 200, 50)
 
-    # ── Score & filter ─────────────────────────────────────────────────────
     scores = score_sample(df, models)
     df_scored = df.copy()
     df_scored["growth_prob"]  = scores["growth"].values
@@ -133,7 +144,6 @@ with tab_browse:
         .reset_index(drop=True)
     )
 
-    # ── Company table ──────────────────────────────────────────────────────
     st.subheader(f"Top {n_show} companies by {sort_by} probability")
     show_cols = [c for c in ["bcb_sector","sic_code_1","company_size_score",
                               "has_mortgage_history","num_mortgages_total",
@@ -145,7 +155,6 @@ with tab_browse:
         width="stretch", height=300,
     )
 
-    # ── Select a company ───────────────────────────────────────────────────
     st.markdown("---")
     st.subheader("Select a company for detailed analysis")
     row_idx = st.number_input("Row index (from table above)", min_value=0,
@@ -161,7 +170,6 @@ with tab_browse:
     st.caption(f"Sector: **{sector}** · SIC: {company.get('sic_code_1','?')} · "
                f"Size score: {company.get('company_size_score','?')}")
 
-    # ── SHAP ───────────────────────────────────────────────────────────────
     st.markdown("---")
     st.subheader("SHAP Explainability")
     shap_label = st.selectbox("Explain label", ["growth","risk","lending"], key="browse_shap")
@@ -185,7 +193,6 @@ with tab_browse:
             arrow = "↑" if fval > 0 else "↓"
             st.markdown(f"- {arrow} `{fname}` ({fval:+.3f})")
 
-    # ── AI Explanation ─────────────────────────────────────────────────────
     st.markdown("---")
     st.subheader("AI Explanation")
     if st.button("⚡ Quick Explain (Groq)", key="browse_explain"):
@@ -198,7 +205,6 @@ with tab_browse:
             except Exception as e:
                 st.error(f"LLM error: {e}")
 
-    # ── Full Report ────────────────────────────────────────────────────────
     st.markdown("---")
     st.subheader("Full BI Report")
     if st.button("📄 Generate Full Report (OpenAI)", key="browse_report"):
@@ -208,7 +214,7 @@ with tab_browse:
             for lbl in ["growth","risk","lending"]:
                 m2, s2, f2, _ = best_model(models, lbl)
                 X2 = company[f2].fillna(0).values.reshape(1, -1)
-                sv2, ev2 = compute_shap(m2, s2.transform(X2))
+                sv2, _ = compute_shap(m2, s2.transform(X2))
                 shap_all[lbl] = top_features(sv2, f2, n=5)
             try:
                 report, model_used = generate_full_report(preds, shap_all, sector)
@@ -224,13 +230,13 @@ with tab_browse:
 
 
 # ══════════════════════════════════════════════════════════════════════════
-# TAB 2 — Predict new company
+# TAB 2 — Predict new company (predictions fast on submit; SHAP lazy per label)
 # ══════════════════════════════════════════════════════════════════════════
 with tab_new:
     st.subheader("Enter company details to get predictions")
     st.caption(
         "Fill in the fields below. Top features by model importance are shown. "
-        "Any feature not shown defaults to 0."
+        "Any feature not shown defaults to 0. SHAP is computed on demand per label."
     )
 
     # Collect top features across all 3 labels (union, no duplicates)
@@ -245,12 +251,10 @@ with tab_new:
     # ── Input form ────────────────────────────────────────────────────────
     with st.form("new_company_form"):
         st.markdown("**Company Features**")
-
         user_vals = {}
         cols = st.columns(3)
         for i, feat in enumerate(all_top):
             col = cols[i % 3]
-            # Heuristic: binary features get a selectbox, others get a number input
             is_binary = any(kw in feat.lower() for kw in
                             ["has_", "is_", "flag", "overdue", "active", "dissolved",
                              "accounts_late", "liquidation", "dormant"])
@@ -260,63 +264,68 @@ with tab_new:
                 user_vals[feat] = col.number_input(
                     feat, value=0.0, step=0.1, format="%.2f", key=f"inp_{feat}"
                 )
-
         new_sector = st.text_input("Sector (for report, optional)", value="Unknown")
         submitted = st.form_submit_button("🔮 Predict", type="primary")
 
-    # ── Results ───────────────────────────────────────────────────────────
+    # On submit: run predict_proba only (fast) — store in session_state
     if submitted:
-        results = {}
-        shap_all = {}
-
         with st.spinner("Running predictions…"):
-            for lbl in ["growth", "risk", "lending"]:
-                prob, sv, ev, feats, top, mname, X_orig_row = show_prediction_block(
-                    models, lbl, user_vals, new_sector
-                )
-                results[lbl]  = {"prob": prob, "sv": sv, "ev": ev,
-                                  "feats": feats, "top": top, "mname": mname,
-                                  "X_orig": X_orig_row}
-                shap_all[lbl] = top
+            preds_out = {}
+            try:
+                for lbl in ["growth", "risk", "lending"]:
+                    prob, mdl, scl, feats, mn, X_row = predict_prob(models, lbl, user_vals)
+                    preds_out[lbl] = {"prob": prob, "model": mdl, "scaler": scl,
+                                      "features": feats, "mname": mn, "X_orig": X_row}
+                st.session_state["new_preds"]    = preds_out
+                st.session_state["new_sector"]   = new_sector
+                st.session_state["new_user_vals"] = user_vals
+            except Exception as e:
+                st.error(f"Prediction error: {e}")
 
-        # Metric row
-        g = results["growth"]["prob"]
-        r = results["risk"]["prob"]
-        l = results["lending"]["prob"]
+    # ── Results — shown from session_state so they persist across reruns ──
+    if "new_preds" in st.session_state:
+        preds_out  = st.session_state["new_preds"]
+        new_sector = st.session_state["new_sector"]
+
+        g = preds_out["growth"]["prob"]
+        r = preds_out["risk"]["prob"]
+        l = preds_out["lending"]["prob"]
 
         c1, c2, c3 = st.columns(3)
         c1.metric(f"{prob_color(g)} Growth Opportunity", f"{g:.1%}")
         c2.metric(f"{prob_color(r)} Risk Signal",        f"{r:.1%}")
         c3.metric(f"{prob_color(l)} Lending Need",       f"{l:.1%}")
 
-        # SHAP waterfall for each label
+        # ── SHAP — lazy per label ──────────────────────────────────────────
         st.markdown("---")
-        st.subheader("SHAP Explanations")
-        for lbl in ["growth", "risk", "lending"]:
-            with st.expander(f"{lbl.capitalize()} — SHAP waterfall", expanded=(lbl == "growth")):
-                col_w, col_t = st.columns([3, 1])
-                with col_w:
-                    fig = waterfall_figure(
-                        results[lbl]["sv"], results[lbl]["ev"],
-                        results[lbl]["feats"], results[lbl]["X_orig"]
-                    )
-                    st.pyplot(fig, width="stretch")
-                    plt.close("all")
-                with col_t:
-                    st.markdown(f"**Model:** {results[lbl]['mname']}")
-                    st.markdown("**Top drivers:**")
-                    for fname, fval in results[lbl]["top"][:6]:
-                        arrow = "↑" if fval > 0 else "↓"
-                        st.markdown(f"- {arrow} `{fname}` ({fval:+.3f})")
+        st.subheader("SHAP Explanations (click a label to compute)")
 
-        # AI buttons
+        shap_results = {}
+        for lbl in ["growth", "risk", "lending"]:
+            p = preds_out[lbl]
+            with st.expander(f"{lbl.capitalize()} — {p['prob']:.1%} probability"):
+                if st.button(f"Compute SHAP for {lbl}", key=f"shap_btn_{lbl}"):
+                    with st.spinner(f"Computing SHAP for {lbl}…"):
+                        top = render_shap_block(
+                            p["model"], p["scaler"], p["features"], p["mname"], p["X_orig"]
+                        )
+                        shap_results[lbl] = top
+                        st.session_state[f"shap_top_{lbl}"] = top
+                elif f"shap_top_{lbl}" in st.session_state:
+                    top = render_shap_block(
+                        p["model"], p["scaler"], p["features"], p["mname"], p["X_orig"]
+                    )
+                    shap_results[lbl] = top
+
+        # ── AI buttons ─────────────────────────────────────────────────────
         st.markdown("---")
         col_a, col_b = st.columns(2)
         with col_a:
             if st.button("⚡ Quick Explain (Groq)", key="new_explain"):
+                top_g = st.session_state.get("shap_top_growth", [])
                 with st.spinner("Generating explanation…"):
                     try:
-                        text, model_used = quick_explain("growth", g, shap_all["growth"])
+                        text, model_used = quick_explain("growth", g, top_g)
                         st.success(text)
                         st.markdown(f'<span class="llm-tag">via {model_used}</span>',
                                     unsafe_allow_html=True)
@@ -324,21 +333,21 @@ with tab_new:
                         st.error(f"LLM error: {e}")
         with col_b:
             if st.button("📄 Full BI Report (OpenAI)", key="new_report"):
+                shap_all = {lbl: st.session_state.get(f"shap_top_{lbl}", [])
+                            for lbl in ["growth", "risk", "lending"]}
                 with st.spinner("Generating report…"):
                     try:
                         report, model_used = generate_full_report(
                             {"growth": g, "risk": r, "lending": l},
-                            {k: v["top"][:5] for k, v in results.items()},
-                            new_sector
+                            shap_all, new_sector
                         )
                         st.markdown(report)
                         st.markdown(f'<span class="llm-tag">via {model_used}</span>',
                                     unsafe_allow_html=True)
                         st.session_state["last_report_context"] = {
-                            "sector": new_sector, "growth": g,
-                            "risk": r, "lending": l,
-                            "top_features": {k: [(f, v) for f, v in vals["top"]]
-                                              for k, vals in results.items()},
+                            "sector": new_sector, "growth": g, "risk": r, "lending": l,
+                            "top_features": {k: [(f, v) for f, v in vals]
+                                             for k, vals in shap_all.items()},
                         }
                     except Exception as e:
                         st.error(f"LLM error: {e}")

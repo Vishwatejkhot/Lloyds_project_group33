@@ -1,20 +1,20 @@
 import shap
 import numpy as np
-import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import streamlit as st
 
 
+# Cache explainers keyed by model object id so each model gets its own explainer
 @st.cache_resource(show_spinner=False)
-def _get_explainer(_model):
+def _get_explainer_by_id(model_id: int, _model):  # model_id is the cache key — intentionally unused in body
     return shap.TreeExplainer(_model)
 
 
 def compute_shap(model, X_scaled: np.ndarray):
     """Return (shap_values array, expected_value) for a single scaled row."""
-    explainer = _get_explainer(model)
+    explainer = _get_explainer_by_id(id(model), model)
     sv = explainer.shap_values(X_scaled)
     ev = explainer.expected_value
     # XGBoost binary may return list [neg, pos]; take positive class
