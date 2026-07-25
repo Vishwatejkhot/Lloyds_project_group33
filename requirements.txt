@@ -18,6 +18,9 @@ plotly>=5.18.0
 matplotlib>=3.7.0
 Pillow>=10.0.0
 
+# PDF generation
+fpdf2>=2.7.0
+
 # Generative AI / LLM gateway
 litellm>=1.50.0
 openai>=1.50.0

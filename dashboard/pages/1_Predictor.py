@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from utils.model_loader import load_all_models, best_model
 from utils.shap_utils import compute_shap, top_features, waterfall_figure
+from utils.pdf_generator import pdf_download_button
 from agents.report_agent import quick_explain, generate_full_report
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -234,8 +235,22 @@ with tab_browse:
                     "risk": float(r), "lending": float(l),
                     "top_features": {k: [(f, v) for f, v in vals] for k, vals in shap_all.items()},
                 }
+                st.session_state["browse_report_text"] = report
+                st.session_state["browse_report_meta"] = {
+                    "sector": sector, "g": float(g), "r": float(r), "l": float(l),
+                    "shap_all": shap_all,
+                }
             except Exception as e:
                 st.error(f"LLM error: {e}")
+
+    if "browse_report_text" in st.session_state:
+        m = st.session_state["browse_report_meta"]
+        pdf_download_button(
+            report_text=st.session_state["browse_report_text"],
+            sector=m["sector"], growth=m["g"], risk=m["r"], lending=m["l"],
+            top_features=m["shap_all"],
+            key="browse_pdf_dl",
+        )
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -362,5 +377,19 @@ with tab_new:
                             "top_features": {k: [(f, v) for f, v in vals]
                                              for k, vals in shap_all.items()},
                         }
+                        st.session_state["new_report_text"] = report
+                        st.session_state["new_report_meta"] = {
+                            "sector": new_sector, "g": g, "r": r, "l": l,
+                            "shap_all": shap_all,
+                        }
                     except Exception as e:
                         st.error(f"LLM error: {e}")
+
+        if "new_report_text" in st.session_state:
+            m = st.session_state["new_report_meta"]
+            pdf_download_button(
+                report_text=st.session_state["new_report_text"],
+                sector=m["sector"], growth=m["g"], risk=m["r"], lending=m["l"],
+                top_features=m["shap_all"],
+                key="new_pdf_dl",
+            )

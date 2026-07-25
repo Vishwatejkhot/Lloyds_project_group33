@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st
 from agents.report_agent import run_agent, generate_full_report
+from utils.pdf_generator import pdf_download_button
 
 st.set_page_config(page_title="AI Agent · Lloyds SME", page_icon="🤖", layout="wide")
 st.title("🤖 AI Banking Intelligence Agent")
@@ -54,9 +55,25 @@ with st.sidebar:
                     "content": f"**Full BI Report** (from Predictor page context)\n\n{report}",
                     "model": model_used,
                 })
+                st.session_state["agent_report_text"] = report
+                st.session_state["agent_report_ctx"]  = ctx
                 st.rerun()
             except Exception as e:
                 st.error(str(e))
+
+    if "agent_report_text" in st.session_state:
+        st.markdown("---")
+        ctx_r = st.session_state["agent_report_ctx"]
+        pdf_download_button(
+            report_text=st.session_state["agent_report_text"],
+            sector=ctx_r.get("sector", "Unknown"),
+            growth=ctx_r.get("growth", 0.0),
+            risk=ctx_r.get("risk", 0.0),
+            lending=ctx_r.get("lending", 0.0),
+            top_features={k: [(f, v) for f, v in vals]
+                          for k, vals in ctx_r.get("top_features", {}).items()},
+            key="agent_pdf_dl",
+        )
 
 # ── Company context badge ──────────────────────────────────────────────────
 ctx = st.session_state.last_report_context
