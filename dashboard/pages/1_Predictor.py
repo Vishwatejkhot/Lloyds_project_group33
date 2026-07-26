@@ -319,9 +319,9 @@ with tab_new:
         l = preds_out["lending"]["prob"]
 
         c1, c2, c3 = st.columns(3)
-        c1.metric(f"{prob_color(g)} Growth Opportunity", f"{g:.1%}")
-        c2.metric(f"{prob_color(r)} Risk Signal",        f"{r:.1%}")
-        c3.metric(f"{prob_color(l)} Lending Need",       f"{l:.1%}")
+        c1.metric(f"{prob_color(g)} Growth Opportunity", f"{g:.2%}")
+        c2.metric(f"{prob_color(r)} Risk Signal",        f"{r:.2%}")
+        c3.metric(f"{prob_color(l)} Lending Need",       f"{l:.2%}")
 
         # ── SHAP — lazy per label ──────────────────────────────────────────
         st.markdown("---")
