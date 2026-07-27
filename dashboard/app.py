@@ -245,7 +245,7 @@ with col_b:
         st.caption("EXPLORE THE PLATFORM")
         st.header("Navigation")
 
-        st.subheader("🔮 Predictor")
+        st.subheader(" Predictor")
         st.write(
             "Browse companies, generate predictions, inspect SHAP explanations "
             "and produce a full business intelligence report."
@@ -261,7 +261,7 @@ with col_b:
 
         st.divider()
 
-        st.subheader("🤖 AI Agent")
+        st.subheader(" AI Agent")
         st.write(
             "Interact with an agentic AI assistant powered by Groq and OpenAI routing."
         )

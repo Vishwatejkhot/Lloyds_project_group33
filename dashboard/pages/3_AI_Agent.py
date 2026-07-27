@@ -10,7 +10,7 @@ from agents.report_agent import run_agent, generate_full_report
 from utils.pdf_generator import pdf_download_button
 st.set_page_config(
     page_title="AI Agent · Lloyds SME",
-    page_icon="🤖",
+    page_icon="",
     layout="wide",
 )
 
@@ -149,7 +149,7 @@ st.markdown(
 st.markdown(
     '<div class="agent-hero">'
     '<div class="agent-badge">LLOYDS SME DECISION SUPPORT</div>'
-    '<div class="agent-title">🤖 AI Banking Intelligence Agent</div>'
+    '<div class="agent-title"> AI Banking Intelligence Agent</div>'
     '<p class="agent-subtitle">'
     'Ask questions about model performance, sector opportunities, SHAP drivers and company-level analysis.'
     'The agent automatically routes requests through Groq or OpenAI and can generate professional banking reports.'
@@ -182,7 +182,7 @@ with st.sidebar:
     st.markdown("- `get_shap_importance` — cross-label feature drivers")
     st.markdown("---")
 
-    if st.button("🗑️ Clear chat"):
+    if st.button(" Clear chat"):
         st.session_state.messages = []
         st.rerun()
 
@@ -224,7 +224,7 @@ with st.sidebar:
 ctx = st.session_state.last_report_context
 if ctx:
     st.info(
-        f"📎 Company context loaded from Predictor — "
+        f" Company context loaded from Predictor — "
         f"Sector: **{ctx['sector']}** · "
         f"Growth: **{ctx['growth']:.1%}** · "
         f"Risk: **{ctx['risk']:.1%}** · "
@@ -232,7 +232,7 @@ if ctx:
     )
 
 # ── Suggested prompts 
-with st.expander("💡 Suggested prompts", expanded=True):
+with st.expander(" Suggested prompts", expanded=True):
     st.markdown("""
 - *Which model performs best on the risk signal label and why?*
 - *Which BCB sectors have the most high-growth SME opportunities?*

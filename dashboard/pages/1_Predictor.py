@@ -21,7 +21,7 @@ DATASET_PATH = os.path.join(OUTPUT_DIR, "feature_engineered_dataset.csv")
 
 st.set_page_config(
     page_title="Predictor · Lloyds SME",
-    page_icon="🔮",
+    page_icon="",
     layout="wide",
 )
 
@@ -140,7 +140,7 @@ st.markdown(
     """
 <div class="predictor-hero">
     <div class="predictor-badge">LLOYDS SME DECISION SUPPORT</div>
-    <div class="predictor-title">🔮 Company Predictor</div>
+    <div class="predictor-title"> Company Predictor</div>
     <div class="predictor-subtitle">
         Browse 50,000 sampled UK SMEs, compare growth, risk and lending
         probabilities, inspect SHAP explanations and generate AI-supported reports.
@@ -330,12 +330,12 @@ Browse companies ranked by predicted opportunity score.
 
     st.markdown("---")
     st.markdown("---")
-    st.markdown("<h2 style='color:#111827;'>🧠 SHAP Explainability</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color:#111827;'> SHAP Explainability</h2>", unsafe_allow_html=True)
     st.markdown("<p style='color:#4B5563;'>See which features influenced the prediction.</p>", unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown(
-    "<h2 style='color:#111827;'>🤖 AI Assistant</h2>",
+    "<h2 style='color:#111827;'> AI Assistant</h2>",
     unsafe_allow_html=True,
    )
     st.markdown(
@@ -365,7 +365,7 @@ Browse companies ranked by predicted opportunity score.
 
     st.markdown("---")
     st.markdown(
-    "<h2 style='color:#111827;'>🤖 AI Assistant</h2>",
+    "<h2 style='color:#111827;'> AI Assistant</h2>",
     unsafe_allow_html=True,
     )
     st.markdown(
@@ -466,7 +466,7 @@ with tab_new:
                     feat, value=round(default_val, 3), step=0.1, format="%.3f", key=f"inp_{feat}"
                 )
         new_sector = st.text_input("Sector (for report, optional)", value="Unknown")
-        submitted = st.form_submit_button("🔮 Predict", type="primary")
+        submitted = st.form_submit_button(" Predict", type="primary")
 
     # On submit: run predict_proba only (fast) — store in session_state
     if submitted:
