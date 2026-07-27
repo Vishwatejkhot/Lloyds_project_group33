@@ -1,5 +1,6 @@
-import streamlit as st
 import os
+
+import streamlit as st
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
@@ -11,26 +12,182 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-st.markdown("""
+st.markdown(
+    """
 <style>
-[data-testid="stSidebar"] { background-color: #006A4D !important; }
-[data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label,
-[data-testid="stSidebar"] span, [data-testid="stSidebar"] p { color: white !important; }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3 { color: #A8D5BA !important; }
-.metric-card { background: #f0f7f4; border-left: 4px solid #006A4D;
-               border-radius: 6px; padding: 14px 18px; margin-bottom: 10px; }
-.badge-high   { background:#006A4D; color:white; padding:2px 10px; border-radius:12px; font-size:13px; }
-.badge-med    { background:#FFA500; color:white; padding:2px 10px; border-radius:12px; font-size:13px; }
-.badge-low    { background:#DC3545; color:white; padding:2px 10px; border-radius:12px; font-size:13px; }
-.llm-tag { font-size:11px; color:#888; border:1px solid #ddd;
-           border-radius:8px; padding:1px 8px; display:inline-block; }
-</style>
-""", unsafe_allow_html=True)
+.stApp {
+    background:
+        radial-gradient(circle at top right, rgba(0, 106, 77, 0.10), transparent 28%),
+        linear-gradient(180deg, #f7faf9 0%, #eef4f1 100%);
+}
+/* Force readable colours in the main dashboard */
+.stApp,
+.stApp p,
+.stApp span,
+.stApp label,
+.stApp li,
+.stApp div {
+    color: #17362d;
+}
 
-# ── Home ───────────────────────────────────────────────────────────────────
-st.title("🏦 Lloyds SME Intelligence Platform")
-st.caption("Group 33 · Companies House ML · Powered by XGBoost + SHAP + Generative AI")
+.stApp h1,
+.stApp h2,
+.stApp h3 {
+    color: #10231d !important;
+}
+
+[data-testid="stMain"] {
+    color: #17362d;
+}
+
+[data-testid="stMain"] p,
+[data-testid="stMain"] span,
+[data-testid="stMain"] label {
+    color: #4f665e;
+}
+
+[data-testid="stMain"] code {
+    color: #ffffff !important;
+    background-color: #123329 !important;
+}
+
+[data-testid="stAlert"] p {
+    color: inherit !important;
+}
+
+.block-container {
+    max-width: 1380px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #003f2f 0%, #006a4d 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+[data-testid="stSidebarNav"] a {
+    border-radius: 10px;
+    margin: 0.3rem 0.55rem;
+    padding: 0.65rem 0.8rem;
+}
+
+[data-testid="stSidebarNav"] a:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.hero {
+    background: linear-gradient(135deg, #003f2f 0%, #006a4d 70%, #0b8a66 100%);
+    border-radius: 22px;
+    padding: 2.4rem 2.5rem;
+    margin-bottom: 1.5rem;
+    color: white;
+    box-shadow: 0 18px 45px rgba(0, 63, 47, 0.22);
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.hero-title {
+    font-size: 2.55rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: white !important;
+    margin-bottom: 0.8rem;
+}
+
+.hero-title,
+.hero-title * {
+    color: white !important;
+}
+
+.hero-subtitle,
+.hero-subtitle * {
+    color: rgba(255, 255, 255, 0.90) !important;
+}
+
+.hero-badge,
+.hero-badge * {
+    color: white !important;
+}
+
+.hero-subtitle {
+    color: rgba(255, 255, 255, 0.86);
+    font-size: 1.02rem;
+    max-width: 850px;
+}
+
+[data-testid="stMetric"] {
+    background: white;
+    border: 1px solid #dce8e2;
+    border-radius: 16px;
+    padding: 1rem 1.15rem;
+    box-shadow: 0 9px 24px rgba(20, 46, 37, 0.07);
+}
+
+[data-testid="stMetricLabel"] {
+    font-weight: 700;
+    color: #496159;
+}
+
+[data-testid="stMetricValue"] {
+    color: #10231d;
+    font-weight: 800;
+}
+
+[data-testid="stMetricDelta"] {
+    background: #e5f4ed;
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    width: fit-content;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(20, 46, 37, 0.07);
+}
+
+h1, h2, h3 {
+    color: #10231d;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #d8e4de;
+    margin: 2rem 0;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+<div class="hero">
+    <div class="hero-badge">LLOYDS BANKING GROUP · GROUP 33</div>
+    <div class="hero-title">🏦 SME Intelligence Platform</div>
+    <div class="hero-subtitle">
+        A decision-support dashboard combining Companies House data,
+        machine learning, SHAP explainability and generative AI to identify
+        growth opportunities, business risk and lending potential across UK SMEs.
+    </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("Companies Analysed", "3,145,434", "UK SMEs")
@@ -38,43 +195,87 @@ c2.metric("Best Growth F1", "0.9341", "XGBoost")
 c3.metric("Best Risk AUC", "1.0000", "XGBoost")
 c4.metric("Best Lending F1", "1.0000", "Random Forest")
 
-st.markdown("---")
+st.write("")
 
-col_a, col_b = st.columns([2, 1])
+col_a, col_b = st.columns([1.65, 1], gap="large")
+
 with col_a:
-    st.markdown("""
-### What this platform does
-Using machine learning trained on 3.1 million UK companies from Companies House,
-this dashboard identifies SME prospects for Lloyds Banking Group across three signals:
+    with st.container(border=True):
+        st.caption("PLATFORM OVERVIEW")
+        st.header("What this platform does")
 
-| Signal | Model | F1 Score |
-|--------|-------|----------|
-| 🌱 Growth Opportunity | XGBoost | 0.9341 |
-| ⚠️ Risk Signal (14:1 imbalance) | XGBoost | 0.9973 |
-| 💷 Lending Need Proxy | XGBoost | 1.0000 |
+        st.write(
+            "The platform analyses more than 3.1 million UK companies and "
+            "converts company information into three clear commercial signals."
+        )
 
-Statistical validation includes McNemar's test, 1000-iteration bootstrap CI, and Bayesian model comparison.
-SHAP explainability identifies the key features driving each prediction.
-""")
+        signal_1, model_1, score_1 = st.columns([2, 1, 1])
+        signal_1.markdown("**🌱 Growth Opportunity**")
+        model_1.markdown("`XGBoost`")
+        score_1.markdown("**F1 0.9341**")
+
+        st.divider()
+
+        signal_2, model_2, score_2 = st.columns([2, 1, 1])
+        signal_2.markdown("**⚠️ Risk Signal**")
+        model_2.markdown("`XGBoost`")
+        score_2.markdown("**F1 0.9973**")
+
+        st.divider()
+
+        signal_3, model_3, score_3 = st.columns([2, 1, 1])
+        signal_3.markdown("**💷 Lending Need Proxy**")
+        model_3.markdown("`XGBoost`")
+        score_3.markdown("**F1 1.0000**")
+
+        st.divider()
+
+        st.success(
+            "Explainable by design — SHAP analysis identifies the features "
+            "contributing most strongly to every prediction."
+        )
+
+        st.info(
+            "Statistically validated using McNemar's test, bootstrap confidence "
+            "intervals and Bayesian model comparison."
+        )
 
 with col_b:
-    st.markdown("""
-### Navigation
-**🔮 Predictor**
-Browse companies, run predictions, SHAP waterfall, AI explanation & full BI report.
+    with st.container(border=True):
+        st.caption("EXPLORE THE PLATFORM")
+        st.header("Navigation")
 
-**📊 Performance**
-Model metrics, ROC/PR curves, statistical tests.
+        st.subheader("🔮 Predictor")
+        st.write(
+            "Browse companies, generate predictions, inspect SHAP explanations "
+            "and produce a full business intelligence report."
+        )
 
-**🤖 AI Agent**
-Chat with an agentic AI powered by Groq + OpenAI routing.
+        st.divider()
 
----
-**LLM Gateway**
-- Quick explain → Groq (Llama 3.1 70B)
-- Full reports  → OpenAI (GPT-4o-mini)
-- Auto fallback on failure
-""")
+        st.subheader("📊 Performance")
+        st.write(
+            "Review model metrics, ROC and precision-recall curves, confusion "
+            "matrices and statistical validation."
+        )
 
-st.markdown("---")
-st.caption("Data: UK Companies House bulk download (public). No personal data processed.")
+        st.divider()
+
+        st.subheader("🤖 AI Agent")
+        st.write(
+            "Interact with an agentic AI assistant powered by Groq and OpenAI routing."
+        )
+
+        st.divider()
+
+        st.caption("LLM GATEWAY")
+        st.write("⚡ Quick explanations via Groq")
+        st.write("🧾 Full reports via OpenAI")
+        st.write("🔁 Automatic fallback on failure")
+
+st.divider()
+
+st.caption(
+    "Data source: UK Companies House bulk download · Public company data only · "
+    "No personal data processed"
+)

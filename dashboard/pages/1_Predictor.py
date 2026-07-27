@@ -19,12 +19,139 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 OUTPUT_DIR   = os.path.join(PROJECT_ROOT, "output")
 DATASET_PATH = os.path.join(OUTPUT_DIR, "feature_engineered_dataset.csv")
 
-st.set_page_config(page_title="Predictor · Lloyds SME", page_icon="🔮", layout="wide")
-st.title("🔮 Company Predictor")
-st.caption("Browse 50k sampled UK SMEs · Predict new company · SHAP explainability · AI report")
+st.set_page_config(
+    page_title="Predictor · Lloyds SME",
+    page_icon="🔮",
+    layout="wide",
+)
+
+st.markdown(
+    """
+<style>
+.stApp {
+    background:
+        radial-gradient(circle at top right, rgba(0, 106, 77, 0.10), transparent 28%),
+        linear-gradient(180deg, #f7faf9 0%, #eef4f1 100%);
+}
+
+.block-container {
+    max-width: 1380px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #003f2f 0%, #006a4d 100%);
+}
+
+[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+.predictor-hero {
+    background: linear-gradient(135deg, #003f2f 0%, #006a4d 70%, #0b8a66 100%);
+    border-radius: 22px;
+    padding: 2rem 2.3rem;
+    margin-bottom: 1.4rem;
+    box-shadow: 0 18px 45px rgba(0, 63, 47, 0.22);
+}
+
+.predictor-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: white !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 0.9rem;
+}
+
+.predictor-title {
+    color: white !important;
+    font-size: 2.45rem;
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 0.65rem;
+}
+
+.predictor-subtitle {
+    color: rgba(255, 255, 255, 0.88) !important;
+    font-size: 1rem;
+    max-width: 900px;
+}
+
+[data-testid="stMetric"] {
+    background: white;
+    border: 1px solid #dce8e2;
+    border-radius: 16px;
+    padding: 1rem 1.15rem;
+    box-shadow: 0 9px 24px rgba(20, 46, 37, 0.07);
+}
+[data-testid="stMetricLabel"] {
+    color: #4B5563 !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stMetricValue"] {
+    color: #111827 !important;
+    font-weight: 800 !important;
+}
+
+[data-testid="stMetricDelta"] {
+    color: #166534 !important;
+}
+
+[data-testid="stDataFrame"] {
+    border: 1px solid #dce8e2;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(20, 46, 37, 0.06);
+}
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(20, 46, 37, 0.07);
+}
+
+.stButton > button {
+    border-radius: 10px;
+    font-weight: 700;
+    min-height: 2.8rem;
+}
+
+h1, h2, h3 {
+    color: #10231d;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #d8e4de;
+    margin: 1.7rem 0;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """
+<div class="predictor-hero">
+    <div class="predictor-badge">LLOYDS SME DECISION SUPPORT</div>
+    <div class="predictor-title">🔮 Company Predictor</div>
+    <div class="predictor-subtitle">
+        Browse 50,000 sampled UK SMEs, compare growth, risk and lending
+        probabilities, inspect SHAP explanations and generate AI-supported reports.
+    </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
 
-# ── Helpers ────────────────────────────────────────────────────────────────
+# ── Helpers 
 @st.cache_data(show_spinner="Loading company dataset…")
 def load_data():
     if not os.path.exists(DATASET_PATH):
@@ -107,7 +234,7 @@ def render_shap_block(model, scaler, features, mname, X_orig):
         return []
 
 
-# ── Load models once ───────────────────────────────────────────────────────
+# ── Load models once
 with st.sidebar:
     st.header("Settings")
     models = load_all_models()
@@ -116,13 +243,11 @@ with st.sidebar:
         st.stop()
 
 
-# ── Tabs ───────────────────────────────────────────────────────────────────
+
 tab_browse, tab_new = st.tabs(["📋 Browse Dataset", "🆕 Predict New Company"])
 
-
-# ══════════════════════════════════════════════════════════════════════════
 # TAB 1 — Browse dataset
-# ══════════════════════════════════════════════════════════════════════════
+
 with tab_browse:
     df = load_data()
     if df is None:
@@ -154,7 +279,25 @@ with tab_browse:
         .reset_index(drop=True)
     )
 
-    st.subheader(f"Top {n_show} companies by {sort_by} probability")
+    st.markdown("---")
+    st.markdown("""
+<h2 style="
+color:#111827;
+font-weight:700;
+margin-bottom:0px;
+">
+🏢 Top Ranked Companies
+</h2>
+
+<p style="
+color:#4B5563;
+margin-top:0px;
+margin-bottom:20px;
+">
+Browse companies ranked by predicted opportunity score.
+</p>
+""", unsafe_allow_html=True)
+    st.caption("Filter companies by sector and probability score.")
     show_cols = [c for c in ["bcb_sector","sic_code_1","company_size_score",
                               "has_mortgage_history","num_mortgages_total",
                               "growth_prob","risk_prob","lending_prob"] if c in df_display.columns]
@@ -166,7 +309,12 @@ with tab_browse:
     )
 
     st.markdown("---")
-    st.subheader("Select a company for detailed analysis")
+    st.markdown("---")
+    st.markdown("<h2 style='color:#111827;'>🏢 Company Analysis</h2>", unsafe_allow_html=True)
+    st.markdown(
+    "<p style='color:#4B5563;'>Select a company to inspect predictions and explanations.</p>",
+    unsafe_allow_html=True
+   )
     row_idx = st.number_input("Row index (from table above)", min_value=0,
                                max_value=len(df_display) - 1, value=0, step=1)
     company = df_display.iloc[int(row_idx)]
@@ -181,7 +329,19 @@ with tab_browse:
                f"Size score: {company.get('company_size_score','?')}")
 
     st.markdown("---")
-    st.subheader("SHAP Explainability")
+    st.markdown("---")
+    st.markdown("<h2 style='color:#111827;'>🧠 SHAP Explainability</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#4B5563;'>See which features influenced the prediction.</p>", unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown(
+    "<h2 style='color:#111827;'>🤖 AI Assistant</h2>",
+    unsafe_allow_html=True,
+   )
+    st.markdown(
+    "<p style='color:#4B5563;'>Generate a natural-language explanation of the prediction.</p>",
+    unsafe_allow_html=True,
+   )
     shap_label = st.selectbox("Explain label", ["growth","risk","lending"], key="browse_shap")
 
     with st.spinner("Computing SHAP values…"):
@@ -204,7 +364,14 @@ with tab_browse:
             st.markdown(f"- {arrow} `{fname}` ({fval:+.3f})")
 
     st.markdown("---")
-    st.subheader("AI Explanation")
+    st.markdown(
+    "<h2 style='color:#111827;'>🤖 AI Assistant</h2>",
+    unsafe_allow_html=True,
+    )
+    st.markdown(
+    "<p style='color:#4B5563;'>Generate a natural-language explanation of the prediction.</p>",
+    unsafe_allow_html=True,
+    )
     if st.button("⚡ Quick Explain (Groq)", key="browse_explain"):
         with st.spinner("Generating explanation via Groq…"):
             prob_val = float(company[f"{shap_label}_prob"])
@@ -216,7 +383,14 @@ with tab_browse:
                 st.error(f"LLM error: {e}")
 
     st.markdown("---")
-    st.subheader("Full BI Report")
+    st.markdown(
+    "<h2 style='color:#111827;'>📄 Business Intelligence Report</h2>",
+    unsafe_allow_html=True,
+    )
+    st.markdown(
+    "<p style='color:#4B5563;'>Generate a professional company report.</p>",
+    unsafe_allow_html=True,
+)
     if st.button("📄 Generate Full Report (OpenAI)", key="browse_report"):
         with st.spinner("Generating report…"):
             preds    = {"growth": float(g), "risk": float(r), "lending": float(l)}
@@ -253,9 +427,9 @@ with tab_browse:
         )
 
 
-# ══════════════════════════════════════════════════════════════════════════
+
 # TAB 2 — Predict new company (predictions fast on submit; SHAP lazy per label)
-# ══════════════════════════════════════════════════════════════════════════
+
 with tab_new:
     st.subheader("Enter company details to get predictions")
     st.caption(
@@ -274,7 +448,7 @@ with tab_new:
 
     medians = get_feature_medians()
 
-    # ── Input form ────────────────────────────────────────────────────────
+    #  Input form 
     with st.form("new_company_form"):
         user_vals = {}
         cols = st.columns(3)
@@ -323,7 +497,7 @@ with tab_new:
         c2.metric(f"{prob_color(r)} Risk Signal",        f"{r:.2%}")
         c3.metric(f"{prob_color(l)} Lending Need",       f"{l:.2%}")
 
-        # ── SHAP — lazy per label ──────────────────────────────────────────
+        #  SHAP  lazy per label 
         st.markdown("---")
         st.subheader("SHAP Explanations (click a label to compute)")
 
@@ -344,7 +518,7 @@ with tab_new:
                     )
                     shap_results[lbl] = top
 
-        # ── AI buttons ─────────────────────────────────────────────────────
+        #  AI buttons 
         st.markdown("---")
         col_a, col_b = st.columns(2)
         with col_a:
