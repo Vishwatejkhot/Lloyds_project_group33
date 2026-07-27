@@ -15,6 +15,10 @@ st.set_page_config(
 st.markdown(
     """
 <style>
+[data-testid="stHeader"] {
+    background: transparent !important;
+}
+
 .stApp {
     background:
         radial-gradient(circle at top right, rgba(0, 106, 77, 0.10), transparent 28%),
@@ -177,7 +181,10 @@ hr {
 st.markdown(
     """
 <div class="hero">
-    <div class="hero-badge">LLOYDS BANKING GROUP · GROUP 33</div>
+    <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;">
+        <span class="hero-badge" style="margin-bottom:0;">LLOYDS BANKING GROUP</span>
+        <span class="hero-badge" style="margin-bottom:0;background:rgba(255,255,255,0.28);font-weight:800;letter-spacing:0.06em;">GROUP 33</span>
+    </div>
     <div class="hero-title">🏦 SME Intelligence Platform</div>
     <div class="hero-subtitle">
         A decision-support dashboard combining Companies House data,

@@ -28,11 +28,24 @@ st.set_page_config(
 st.markdown(
     """
 <style>
+[data-testid="stHeader"] { background: transparent !important; }
+
 .stApp {
     background:
         radial-gradient(circle at top right, rgba(0, 106, 77, 0.10), transparent 28%),
         linear-gradient(180deg, #f7faf9 0%, #eef4f1 100%);
+    color: #17362d;
 }
+
+.stApp p, .stApp span, .stApp label, .stApp li, .stApp div {
+    color: #17362d;
+}
+
+.stApp h1, .stApp h2, .stApp h3 {
+    color: #10231d !important;
+}
+
+[data-testid="stAlert"] p { color: inherit !important; }
 
 .block-container {
     max-width: 1380px;
