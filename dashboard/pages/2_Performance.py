@@ -14,7 +14,59 @@ OUTPUT_DIR   = os.path.join(PROJECT_ROOT, "output")
 st.set_page_config(page_title="Performance · Lloyds SME", page_icon="📊", layout="wide")
 st.title("📊 Model Performance")
 st.caption("Evaluation across 3 labels × 3 models · Statistical significance · SHAP importance")
+st.info(
+    """
+    **Executive Summary**
 
+    Three machine-learning models were evaluated across Growth Opportunity,
+    Risk Signal and Lending Need objectives. XGBoost achieved the strongest
+    overall performance, while statistical testing and SHAP analysis support
+    model reliability, transparency and business use.
+    """
+)
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+
+with kpi1:
+    st.metric("Models Evaluated", "9")
+
+with kpi2:
+    st.metric("Prediction Labels", "3")
+
+with kpi3:
+    st.metric("Bootstrap Samples", "1,000")
+
+with kpi4:
+    st.metric("Confidence Level", "95%")
+st.markdown("### Executive Model Highlights")
+
+highlight1, highlight2, highlight3 = st.columns(3)
+
+with highlight1:
+    st.success(
+        """
+        **Growth Opportunity**
+
+        Identifies SMEs with strong potential for business growth and expansion.
+        """
+    )
+
+with highlight2:
+    st.warning(
+        """
+        **Risk Signal**
+
+        Detects companies showing elevated financial or operational risk.
+        """
+    )
+
+with highlight3:
+    st.info(
+        """
+        **Lending Need**
+
+        Identifies SMEs that may require additional lending or financial support.
+        """
+    )   
 
 def load_csv(name):
     path = os.path.join(OUTPUT_DIR, name)
@@ -30,6 +82,13 @@ def show_img(name, caption=""):
 
 
 # ── Tabs ───────────────────────────────────────────────────────────────────
+st.divider()
+
+st.markdown("## 📈 Detailed Performance Analysis")
+
+st.caption(
+    "The sections below provide detailed evaluation metrics, statistical validation, confusion matrices and explainability results for the trained models."
+)
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📋 Baseline Metrics", "📈 ROC & PR Curves",
     "🔲 Confusion Matrices", "🧪 Statistical Tests", "🔍 SHAP Importance"
@@ -39,7 +98,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab1:
     df = load_csv("baseline_results_summary.csv")
     if df is not None:
-        st.subheader("All Models · All Labels")
+        st.subheader("Performance Comparison Across All Models")
         col_order = [c for c in ["Label","Model","f1","roc_auc","precision","recall",
                                    "accuracy","avg_precision","brier_score"] if c in df.columns]
         styled = (
@@ -52,7 +111,7 @@ with tab1:
         st.dataframe(styled, width="stretch")
 
         st.markdown("---")
-        st.subheader("Recommended Models")
+        st.subheader("Recommended Production Models")
         rec = load_csv("recommended_models.csv")
         if rec is not None:
             st.dataframe(rec, width="stretch")
@@ -62,6 +121,17 @@ with tab1:
 
 # ── Tab 2: ROC & PR ────────────────────────────────────────────────────────
 with tab2:
+    st.info(
+        """
+        **ROC and Precision–Recall Analysis**
+
+        These curves show how well each model separates positive and negative cases.
+        Precision–Recall curves are especially useful for the imbalanced Risk Signal
+        and Lending Need labels.
+        """
+    )
+
+    c1, c2 = st.columns(2)
     c1, c2 = st.columns(2)
     with c1:
         st.subheader("ROC Curves")
@@ -83,10 +153,28 @@ with tab2:
 
 # ── Tab 3: Confusion matrices ──────────────────────────────────────────────
 with tab3:
+    st.info(
+        """
+        **Confusion Matrix Analysis**
+
+        The confusion matrices illustrate how accurately each model classifies
+        positive and negative cases for every prediction task, helping identify
+        false positives and false negatives.
+        """
+    )
     show_img("confusion_matrices.png", "Sample (100k) models")
 
 # ── Tab 4: Statistical tests ───────────────────────────────────────────────
 with tab4:
+    st.info(
+        """
+        **Statistical Validation**
+
+        Bootstrap confidence intervals and paired statistical tests were used to
+        verify that the observed performance differences between models are
+        statistically reliable rather than due to random variation.
+        """
+    )
     st.subheader("Bootstrap 95% Confidence Intervals (n=1000)")
     boot = load_csv("bootstrap_ci.csv")
     if boot is not None:
@@ -121,6 +209,15 @@ with tab4:
 
 # ── Tab 5: SHAP ───────────────────────────────────────────────────────────
 with tab5:
+    st.info(
+        """
+        **Model Explainability**
+
+        SHAP values explain how each feature contributes to model predictions,
+        improving transparency and helping stakeholders understand the factors
+        influencing business decisions.
+        """
+    )
     st.subheader("XGBoost Feature Importance")
     show_img("feature_importance.png")
 
@@ -154,3 +251,15 @@ with tab5:
     cross = load_csv("shap_cross_label_importance.csv")
     if cross is not None:
         st.dataframe(cross, width="stretch")
+st.divider()
+
+st.success(
+    """
+    **Executive Conclusion**
+
+    The evaluation demonstrates that the selected models provide strong predictive
+    performance across the three business objectives. The statistical tests,
+    confusion matrices and SHAP analysis also support reliable, transparent and
+    explainable model deployment.
+    """
+)
