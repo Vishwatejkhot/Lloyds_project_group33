@@ -13,7 +13,7 @@ from litellm import completion
 
 litellm.suppress_debug_info = True
 
-_GROQ_MODEL = "groq/openai/gpt-oss-120b"
+_GROQ_MODEL = "groq/llama-3.3-70b-versatile"
 
 _ROUTES = {
     "explain":  [_GROQ_MODEL, "gpt-4o-mini"],
@@ -40,17 +40,21 @@ def call_llm(
     """
     Route the LLM call through the appropriate provider.
     Returns (response, model_used_str).
-    Raises RuntimeError if all routes fail.
+    Raises RuntimeError if all routes fail, listing every provider's error.
     """
     route = _ROUTES.get(task, _ROUTES["chat"])
-    last_err = None
+    errors = []
 
     for model in route:
+        key = _api_key(model)
+        if not key:
+            errors.append(f"{model}: API key not set (check .env)")
+            continue
         try:
             kwargs = dict(
                 model=model,
                 messages=messages,
-                api_key=_api_key(model),
+                api_key=key,
                 stream=stream,
                 timeout=60,
                 max_tokens=max_tokens,
@@ -63,10 +67,10 @@ def call_llm(
             response = completion(**kwargs)
             return response, model
         except Exception as exc:
-            last_err = exc
+            errors.append(f"{model}: {exc}")
             continue
 
-    raise RuntimeError(f"All LLM routes failed. Last error: {last_err}")
+    raise RuntimeError("All LLM routes failed.\n" + "\n".join(errors))
 
 
 def model_label(model_str: str) -> str:
