@@ -13,7 +13,7 @@ from litellm import completion
 
 litellm.suppress_debug_info = True
 
-_GROQ_MODEL = "groq/llama-3.3-70b-versatile"
+_GROQ_MODEL = "groq/openai/gpt-oss-120b"
 
 _ROUTES = {
     "explain":  [_GROQ_MODEL, "gpt-4o-mini"],
@@ -64,7 +64,7 @@ def call_llm(
             if tool_choice:
                 kwargs["tool_choice"] = tool_choice
 
-            response = completion(**kwargs)
+            response = completion(**kwargs)  # type: ignore[operator]
             return response, model
         except Exception as exc:
             errors.append(f"{model}: {exc}")
