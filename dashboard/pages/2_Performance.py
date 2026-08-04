@@ -240,7 +240,7 @@ with tab5:
     show_img("feature_importance.png")
 
     st.markdown("---")
-    st.subheader("SHAP Beeswarm Plots (Pratik)")
+    st.subheader("SHAP Beeswarm Plots")
     c1, c2, c3 = st.columns(3)
     with c1: show_img("shap_beeswarm_growth.png", "Growth")
     with c2: show_img("shap_beeswarm_risk.png", "Risk")
