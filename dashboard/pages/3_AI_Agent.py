@@ -258,12 +258,6 @@ with st.expander(" Suggested prompts", expanded=True):
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
-        if "model" in msg and msg["role"] == "assistant":
-            st.markdown(
-                f'<span style="font-size:11px;color:#888;border:1px solid #ddd;'
-                f'border-radius:8px;padding:1px 8px;">via {msg["model"]}</span>',
-                unsafe_allow_html=True
-            )
 
 # ── Chat input 
 prompt = st.chat_input("Ask the agent about models, sectors, features, or company analysis…")
@@ -281,11 +275,6 @@ if prompt:
                     task=task_mode,
                 )
                 st.markdown(response)
-                st.markdown(
-                    f'<span style="font-size:11px;color:#888;border:1px solid #ddd;'
-                    f'border-radius:8px;padding:1px 8px;">via {model_used}</span>',
-                    unsafe_allow_html=True
-                )
                 st.session_state.messages.append({
                     "role": "assistant",
                     "content": response,
