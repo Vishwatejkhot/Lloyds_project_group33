@@ -42,6 +42,7 @@ Thumbs.db
 # Env files
 .env
 .env.*
+.streamlit/secrets.toml
 
 # Model training outputs
 output/baseline_results_summary.csv

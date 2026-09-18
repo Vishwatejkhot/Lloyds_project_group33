@@ -24,9 +24,16 @@ _ROUTES = {
 
 
 def _api_key(model: str) -> str:
-    if "groq" in model:
-        return os.getenv("GROQ_API_KEY", "")
-    return os.getenv("OPENAI_API_KEY", "")
+    name = "GROQ_API_KEY" if "groq" in model else "OPENAI_API_KEY"
+    key = os.getenv(name, "")
+    if key:
+        return key
+    # Fall back to Streamlit Cloud's secrets manager (no local .env there)
+    try:
+        import streamlit as st
+        return st.secrets.get(name, "")
+    except Exception:
+        return ""
 
 
 def call_llm(

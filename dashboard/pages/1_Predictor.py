@@ -17,7 +17,9 @@ from agents.report_agent import quick_explain, generate_full_report
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUTPUT_DIR   = os.path.join(PROJECT_ROOT, "output")
-DATASET_PATH = os.path.join(OUTPUT_DIR, "feature_engineered_dataset.csv")
+_DATASET_FULL   = os.path.join(OUTPUT_DIR, "feature_engineered_dataset.csv")
+_DATASET_SAMPLE = os.path.join(OUTPUT_DIR, "feature_engineered_sample.csv")
+DATASET_PATH = _DATASET_FULL if os.path.exists(_DATASET_FULL) else _DATASET_SAMPLE
 
 st.set_page_config(
     page_title="Predictor · Lloyds SME",
@@ -264,7 +266,7 @@ tab_browse, tab_new = st.tabs(["📋 Browse Dataset", "🆕 Predict New Company"
 with tab_browse:
     df = load_data()
     if df is None:
-        st.warning("feature_engineered_dataset.csv not found locally. Ask Vishwatej for the file.")
+        st.warning("No company dataset found in output/. Run the feature engineering pipeline or add feature_engineered_sample.csv.")
         st.stop()
 
     col_f1, col_f2, col_f3 = st.columns(3)

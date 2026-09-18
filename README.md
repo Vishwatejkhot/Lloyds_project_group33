@@ -96,6 +96,22 @@ Output lands in `/output/` as CSV files.
 
 ---
 
+## Deploy on Streamlit Community Cloud
+
+1. Push this repo to GitHub (already done for `main`).
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**.
+3. Pick the repo, branch `main`, and set **Main file path** to `dashboard/app.py`.
+4. Under **Advanced settings → Secrets**, paste:
+   ```toml
+   OPENAI_API_KEY = "sk-..."
+   GROQ_API_KEY = "gsk_..."
+   ```
+5. Deploy. The Predictor page's "Browse Dataset" tab uses the committed
+   `output/feature_engineered_sample.csv` (50k-row sample) since the full
+   3.1M-row dataset is too large for GitHub — see `.gitignore`.
+
+---
+
 ## Project Structure
 
 ```
